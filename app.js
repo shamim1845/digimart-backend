@@ -7,9 +7,13 @@ console.clear();
 
 const app = express();
 /******* MiddleWare ********/
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  })
+);
+app.use(express.json({limit: "25mb"}));
+app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 app.use(cookieParser());
 
 //config
@@ -20,11 +24,13 @@ const productRoute = require("./routes/productRoute");
 const userRoute = require("./routes/userRoutes");
 const orderRoute = require("./routes/orderRoute");
 const paymentRoute = require("./routes/paymentRoute");
+const mediaRoute = require("./routes/mediaRoute");
 
 app.use("/api/v1", productRoute);
 app.use("/api/v1", userRoute);
 app.use("/api/v1", orderRoute);
 app.use("/api/v1", paymentRoute);
+app.use("/api/v1/media", mediaRoute);
 
 // middleware for error handling
 

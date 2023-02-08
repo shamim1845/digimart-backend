@@ -4,21 +4,16 @@ const User = require("../models/userModel");
 const sendToken = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
-const { log } = require("console");
+const jwt = require("jsonwebtoken");
 
 // Register a User
-exports.registerUser = catchAsyncError(async (req, res, next) => {
-  console.log(req.body);
-
+exports.registerUser = catchAsyncError(async (req, res) => {
   const { name, email, password } = req.body;
 
   const findUser = await User.findOne({ email });
 
   if (findUser) {
-    console.log(findUser);
-    return next(
-      res.status(202).json({ message: "User allready exists", success: false })
-    );
+    res.status(400).json({ message: "User allready exists", success: false });
   } else {
     const user = await User.create({
       name,
@@ -147,7 +142,7 @@ exports.getUserDetails = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// Get User Details
+//Update User Password
 exports.updatePassword = catchAsyncError(async (req, res, next) => {
   const { oldPassword, newPassword, confirmPassword } = req.body;
   if (!oldPassword || !newPassword || !confirmPassword) {
@@ -177,10 +172,18 @@ exports.updatePassword = catchAsyncError(async (req, res, next) => {
 });
 
 // update User Profile
-exports.updateProfile = catchAsyncError(async (req, res, next) => {
+exports.updateProfile = catchAsyncError(async (req, res) => {
+  console.log(req.body);
   const newUserData = {
     name: req.body.name,
     email: req.body.email,
+    mobile: req.body.mobile,
+    birthday: req.body.birthday,
+    gender: req.body.gender,
+    avatar: {
+      public_id: req.body.avatar.public_id,
+      url: req.body.avatar.url,
+    },
   };
 
   const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
@@ -260,3 +263,25 @@ exports.deleteUser = catchAsyncError(async (req, res, next) => {
     message: "User deleted Successfully",
   });
 });
+
+// Get Login status
+exports.loginStatus = (req, res) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.json({
+      status: false,
+    });
+  }
+  // Verify Token
+  const verified = jwt.verify(token, process.env.JWT_SECRET);
+
+  if (verified) {
+    return res.json({
+      status: true,
+    });
+  }
+  return res.json({
+    status: false,
+  });
+};

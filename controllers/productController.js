@@ -53,9 +53,9 @@ exports.getAllProduct = catchAsyncError(async (req, res) => {
 
 // New Arrivals
 exports.newArivals = catchAsyncError(async (req, res) => {
-  console.log(req.query);
+  console.log(req.body);
   const resultPerPage = 20;
-  const searchDate = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const searchDate = Date.now() - 30 * 24 * 60 * 60 * 1000;
   const Product = await product.find({ createdAt: { $gt: searchDate } });
   // find Categories
   let categories = [];
@@ -130,8 +130,6 @@ exports.getAllFilteredProduct = catchAsyncError(async (req, res) => {
 
 // Get all categories
 exports.getAllCategories = catchAsyncError(async (req, res) => {
-  let datestart = Date.now();
-
   // categories find
   const categoriesProducts = await product.find();
   let categories = [];
@@ -139,8 +137,7 @@ exports.getAllCategories = catchAsyncError(async (req, res) => {
     categories.push(product.category);
   });
   let allCategories = [...new Set(categories)];
-  let dateend = Date.now();
-  console.log("time: ", dateend - datestart);
+
   res.status(200).json({
     message: "all category ready",
     categories: allCategories,
