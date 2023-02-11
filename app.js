@@ -2,11 +2,13 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const path = require("path");
 
 console.clear();
 
 const app = express();
 /******* MiddleWare ********/
+app.use(express.static("build"));
 app.use(
   cors({
     origin: ["http://localhost:3000", "https://digimart-frontend.vercel.app"],
@@ -31,7 +33,9 @@ app.use("/api/v1", userRoute);
 app.use("/api/v1", orderRoute);
 app.use("/api/v1", paymentRoute);
 app.use("/api/v1/media", mediaRoute);
-
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
 // middleware for error handling
 
 const ErrorHandler = require("./middleware/error");
