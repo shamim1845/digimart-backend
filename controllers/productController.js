@@ -6,12 +6,12 @@ const { set } = require("mongoose");
 
 // create product -- Admin
 exports.createProduct = catchAsyncError(async (req, res, next) => {
-  const { name, description, price, images, category, reviews } = req.body;
+  const { name, description, price, images, category } = req.body;
   if (!name || !description || !price || !images || !category) {
     res.json({ message: "please fill all of this details" });
   } else {
     console.log(req.body);
-    // req.body.reviews[0].userId = req.user._id;
+
     req.body.user = req.user._id;
     const Product = await product.create(req.body);
 
