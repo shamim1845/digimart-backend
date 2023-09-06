@@ -4,32 +4,32 @@ const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      require: [true, "Please Enter product Name"],
-    },
-    price: {
-      type: Number,
-      require: [true, "Please Enter product Price"],
-      maxlength: [8, "Price Can't exceed 8 charecters "],
+      required: [true, "Please Enter product Name"],
     },
     description: {
       type: String,
-      require: [true, "Please Enter product Description"],
+      required: [true, "Please Enter product Description"],
+    },
+    price: {
+      type: Number,
+      required: [true, "Please Enter product Price"],
+      maxlength: [8, "Price Can't exceed 8 charecters "],
     },
     images: [
       {
         public_id: {
           type: String,
-          require: true,
+          required: true,
         },
         url: {
           type: String,
-          require: true,
+          required: true,
         },
       },
     ],
     category: {
       type: String,
-      require: [true, "please Enter Product Category"],
+      required: [true, "please Enter Product Category"],
     },
     brand: {
       type: String,
@@ -37,7 +37,7 @@ const productSchema = new mongoose.Schema(
     },
     stock: {
       type: Number,
-      require: [true, "Please Enter product Stock"],
+      required: [true, "Please Enter product Stock"],
       maxlength: [4, "Stock can not exceed 4 charecter"],
       default: 1,
     },
@@ -45,6 +45,39 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    reviews: [
+      {
+        userId: {
+          type: mongoose.Schema.ObjectId,
+          ref: "USER",
+        },
+        name: {
+          type: String,
+        },
+        rating: {
+          type: Number,
+        },
+        comment: {
+          type: String,
+        },
+        images: [
+          {
+            public_id: {
+              type: String,
+              required: true,
+            },
+            url: {
+              type: String,
+              required: true,
+            },
+          },
+        ],
+        reviewedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     ratingDetails: {
       rating1: {
         type: Number,
@@ -67,39 +100,10 @@ const productSchema = new mongoose.Schema(
         default: 0,
       },
     },
-
     avgRatings: {
       type: Number,
       default: 0,
     },
-    reviews: [
-      {
-        userId: {
-          type: mongoose.Schema.ObjectId,
-          ref: "USER",
-        },
-        name: {
-          type: String,
-        },
-        rating: {
-          type: Number,
-        },
-        comment: {
-          type: String,
-        },
-        images: [
-          {
-            url: {
-              type: String,
-            },
-          },
-        ],
-        reviewedAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
     user: {
       type: mongoose.Schema.ObjectId,
       ref: "USER",

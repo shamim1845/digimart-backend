@@ -17,6 +17,7 @@ const {
 const router = express.Router();
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
 
+// For Normal user
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/loggedin", loginStatus);
@@ -27,7 +28,7 @@ router.get("/logout", logout);
 router.get("/me", isAuthenticatedUser, getUserDetails);
 router.put("/profile/update", isAuthenticatedUser, updateProfile);
 
-// For admin
+// For admin user
 router.get(
   "/admin/users",
   isAuthenticatedUser,

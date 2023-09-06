@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkdigimart_frontend=self.webpackChunkdigimart_frontend||[]).push([[904],{904:function(n,e,r){r.r(e);r(2791);var i=r(184);e.default=function(){return(0,i.jsx)("div",{children:" Admin Users"})}}}]);
+//# sourceMappingURL=904.33d23d77.chunk.js.map

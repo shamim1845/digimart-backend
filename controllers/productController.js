@@ -2,16 +2,14 @@ const product = require("../models/productModel");
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncError = require("../middleware/catchAsyncError");
 const ApiFeatures = require("../utils/apiFeatures");
-const { set } = require("mongoose");
 
 // create product -- Admin
 exports.createProduct = catchAsyncError(async (req, res, next) => {
+  console.log("Body: => ", req.body);
   const { name, description, price, images, category } = req.body;
   if (!name || !description || !price || !images || !category) {
     res.json({ message: "please fill all of this details" });
   } else {
-    console.log(req.body);
-
     req.body.user = req.user._id;
     const Product = await product.create(req.body);
 
@@ -21,8 +19,10 @@ exports.createProduct = catchAsyncError(async (req, res, next) => {
 
 // Get all product
 exports.getAllProduct = catchAsyncError(async (req, res) => {
-  const resultPerPage = 20;
+  const resultPerPage = req.query?.limit || 20;
   const productCount = await product.countDocuments();
+
+  console.log(req.query);
 
   let apiFeature, products;
 
@@ -51,40 +51,45 @@ exports.getAllProduct = catchAsyncError(async (req, res) => {
   });
 });
 
-// New Arrivals
-exports.newArivals = catchAsyncError(async (req, res) => {
-  console.log(req.body);
-  const resultPerPage = 20;
-  const searchDate = Date.now() - 30 * 24 * 60 * 60 * 1000;
+// => New Arrivals utils (for recent data)
+const timeToBack = 12 * 30 * 24 * 60 * 60 * 1000;
+
+// => New Arrivals Categories
+exports.newArivalsCategories = catchAsyncError(async (req, res) => {
+  const searchDate = Date.now() - timeToBack;
   const Product = await product.find({ createdAt: { $gt: searchDate } });
+
   // find Categories
-  let categories = [];
-  Product.map((product) => {
-    categories.push(product.category);
-  });
+  let categories = Product.reduce((acc, product) => {
+    return [...acc, product.category];
+  }, []);
   let allCategories = [...new Set(categories)];
 
-  let query = req.query.category ? req.query : { category: allCategories[0] };
-  let apiFeature;
+  res.status(200).json({
+    success: true,
+    allCategories,
+  });
+});
+
+// => New Arrivals
+exports.newArivals = catchAsyncError(async (req, res) => {
+  const searchDate = Date.now() - timeToBack;
+  const resultPerPage = 20;
+
   // pagination start
-  apiFeature = new ApiFeatures(
+  let apiFeature = new ApiFeatures(
     product.find({ createdAt: { $gt: searchDate } }),
-    query
-  ).filter();
+    req.query
+  )
+    .filter()
+    .pageList(resultPerPage);
 
-  const products_pagination = await apiFeature.query;
-  let pageList = Math.ceil(products_pagination.length / resultPerPage);
-
-  let page = [];
-  for (let i = 1; i <= pageList; i++) {
-    page.push(i);
-  }
+  const page_list = await apiFeature.pages;
 
   // find products
-
   apiFeature = new ApiFeatures(
     product.find({ createdAt: { $gt: searchDate } }),
-    query
+    req.query
   )
     .filter()
     .pagination(resultPerPage);
@@ -92,8 +97,7 @@ exports.newArivals = catchAsyncError(async (req, res) => {
 
   res.status(200).json({
     products,
-    allCategories,
-    pages: page,
+    pages: page_list,
   });
 });
 
