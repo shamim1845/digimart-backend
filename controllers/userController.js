@@ -20,8 +20,8 @@ exports.registerUser = catchAsyncError(async (req, res) => {
       email,
       password,
       avatar: {
-        public_id: "this is a sample id",
-        url: "profilepicurl",
+        public_id: "digimart/utils/a9wgtljtqefqwsg5u3be",
+        url: "https://res.cloudinary.com/dewq5eyuf/image/upload/v1694245602/digimart/utils/a9wgtljtqefqwsg5u3be.avif",
       },
     });
 

@@ -1,26 +1,32 @@
 const Category = require("../models/categoryModel");
 
-const buildAncestors = async (id, parent_id) => {
-  let ancest = [];
-  try {
-    let parent_category = await Category.findOne(
+const buildAncestors = (parent_id) => {
+  return new Promise((resolve, reject) => {
+    const parent_category_promise = Category.findOne(
       { _id: parent_id },
       { name: 1, slug: 1, ancestors: 1 }
     ).exec();
 
-    if (parent_category) {
-      const { _id, name, slug, ancestors } = parent_category;
+    parent_category_promise
+      .then((parent_category) => {
+        if (!parent_category) {
+          return reject("Parent category not found.");
+        }
 
-      ancest = [...ancestors];
-      ancest.unshift({ _id, name, slug });
+        // build ancestors
+        let ancest = [];
+        const { _id, name, slug, ancestors } = parent_category;
 
-      const category = await Category.findByIdAndUpdate(id, {
-        $set: { ancestors: ancest },
+        ancest = [...ancestors];
+        ancest.unshift({ _id, name, slug });
+
+        resolve(ancest);
+      })
+      .catch((err) => {
+        console.log(err);
+        reject(err.message);
       });
-    }
-  } catch (err) {
-    console.log(err.message);
-  }
+  });
 };
 
 module.exports = buildAncestors;

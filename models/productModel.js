@@ -4,16 +4,16 @@ const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Please Enter product Name"],
+      required: [true, "Please Enter product Name."],
     },
     description: {
       type: String,
-      required: [true, "Please Enter product Description"],
+      required: [true, "Please Enter product Description."],
     },
     price: {
       type: Number,
-      required: [true, "Please Enter product Price"],
-      maxlength: [8, "Price Can't exceed 8 charecters "],
+      required: [true, "Please Enter product Price."],
+      maxlength: [8, "Price Can't exceed 8 charecters."],
     },
     images: [
       {
@@ -29,7 +29,7 @@ const productSchema = new mongoose.Schema(
     ],
     category: {
       type: String,
-      required: [true, "please Enter Product Category"],
+      required: [true, "please Enter Product Category."],
     },
     brand: {
       type: String,
@@ -37,28 +37,28 @@ const productSchema = new mongoose.Schema(
     },
     stock: {
       type: Number,
-      required: [true, "Please Enter product Stock"],
-      maxlength: [4, "Stock can not exceed 4 charecter"],
+      required: [true, "Please Enter product Stock."],
+      maxlength: [4, "Stock can not exceed 4 charecter."],
       default: 1,
-    },
-    numOfReviews: {
-      type: Number,
-      default: 0,
     },
     reviews: [
       {
         userId: {
-          type: mongoose.Schema.ObjectId,
-          ref: "USER",
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
         },
         name: {
           type: String,
+          required: true,
         },
         rating: {
           type: Number,
+          required: true,
         },
         comment: {
           type: String,
+          required: true,
         },
         images: [
           {
@@ -78,7 +78,11 @@ const productSchema = new mongoose.Schema(
         },
       },
     ],
-    ratingDetails: {
+    totalReviews: {
+      type: Number,
+      default: 0,
+    },
+    ratings: {
       rating1: {
         type: Number,
         default: 0,
@@ -100,12 +104,12 @@ const productSchema = new mongoose.Schema(
         default: 0,
       },
     },
-    avgRatings: {
+    avgRating: {
       type: Number,
       default: 0,
     },
     user: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "USER",
       required: true,
     },

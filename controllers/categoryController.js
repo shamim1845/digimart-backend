@@ -2,27 +2,36 @@ const catchAsyncError = require("../middleware/catchAsyncError");
 const Category = require("../models/categoryModel");
 const slugify = require("../helpers/slugify");
 const buildAncestors = require("../helpers/buildAncestors");
+const ErrorHandler = require("../utils/errorHandler");
+const updateImidiateChildren = require("../helpers/updateImidiateChildren");
 
-// Create a new category
-exports.createCategory = catchAsyncError(async (req, res) => {
+// => Create a new category (Admin)
+exports.createCategory = catchAsyncError(async (req, res, next) => {
   const { name, parent } = req.body;
 
+  // Find category already exist or not
   const PrevCategory = await Category.findOne({ slug: slugify(name) });
   if (PrevCategory) {
-    console.log(PrevCategory);
-
     return res.status(400).send({
       success: false,
       message: "Category already exist.",
     });
   }
 
+  let ancestors = [];
+  if (parent) {
+    try {
+      ancestors = await buildAncestors(parent);
+    } catch (error) {
+      return next(new ErrorHandler(error, 404));
+    }
+  }
+
   const category = await Category.create({
     name: name,
     parent: parent ? parent : null,
+    ancestors,
   });
-
-  buildAncestors(category._id, parent);
 
   res.status(201).send({
     success: true,
@@ -31,7 +40,98 @@ exports.createCategory = catchAsyncError(async (req, res) => {
   });
 });
 
-// Get All category
+// => Edit category (Admin)
+exports.editCategory = catchAsyncError(async (req, res, next) => {
+  const { name, parent } = req.body;
+  const { id } = req.params;
+
+  // find category
+  let category = await Category.findById(id);
+
+  if (!category) {
+    return next(new ErrorHandler("Category not found.", 404));
+  }
+
+  // build ancestors
+  let ancestors = [];
+  if (parent) {
+    try {
+      ancestors = await buildAncestors(parent);
+    } catch (error) {
+      return next(new ErrorHandler(error, 404));
+    }
+  }
+
+  category.name = name;
+  category.parent = parent ? parent : null;
+  category.ancestors = ancestors;
+
+  category = await category.save({
+    validateModifiedOnly: true,
+  });
+
+  // find immidiate childrens and update parent and ancestors property
+  const immidiateChildrens = await Category.find({ parent: id });
+
+  immidiateChildrens.map((category) => {
+    updateImidiateChildren(category._id, id);
+  });
+
+  res.status(200).send({
+    success: true,
+    message: "Category successfully updated.",
+    category: category,
+  });
+});
+
+// => delete category (Admin)
+exports.deleteCategory = catchAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+
+  // find category
+  let category = await Category.findById(id);
+
+  if (!category) {
+    return next(new ErrorHandler("Category not found.", 404));
+  }
+  category = await category.remove();
+
+  // find immidiate childrens and update parent and ancestors property
+  const immidiateChildrens = await Category.find({ parent: id });
+
+  immidiateChildrens.map((category) => {
+    updateImidiateChildren(category._id, null);
+  });
+
+  res.status(200).send({
+    success: true,
+    message: "Category successfully deleted.",
+  });
+});
+
+// Get raw categories (Admin)
+exports.getAdminCategories = catchAsyncError(async (req, res, next) => {
+  const { name } = req.body;
+
+  const categories = await Category.find({
+    name: {
+      $regex: name || "",
+      $options: "i",
+    },
+  });
+
+  if (!categories.length) {
+    return next(new ErrorHandler("Category not found.", 404));
+  }
+
+  res.status(200).send({
+    success: true,
+    message: "Category found successfully.",
+    categories: categories,
+  });
+});
+
+// Get All category (User)
 exports.getAllCategory = catchAsyncError(async (req, res) => {
   // Find parent categories
   const parent_categories = await Category.find({ parent: null })
@@ -96,3 +196,13 @@ exports.getAllDescendantsCategory = catchAsyncError(async (req, res) => {
     category: result,
   });
 });
+const promise = new Promise((resolve, reject) => {
+  resolve("data from promise");
+});
+
+async function getData() {
+  const data = await promise;
+  console.log(data);
+}
+
+getData();
