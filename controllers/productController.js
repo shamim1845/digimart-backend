@@ -73,7 +73,7 @@ exports.getAllProduct = catchAsyncError(async (req, res, next) => {
   const productCount = await apiFeature.query.countDocuments();
 
   if (!productCount) {
-    return next(new ErrorHandler("Products not found=>>.", 404));
+    return next(new ErrorHandler("Product not found.", 404));
   }
 
   // Client side pagination

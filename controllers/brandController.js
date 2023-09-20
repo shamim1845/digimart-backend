@@ -1,6 +1,7 @@
 const catchAsyncError = require("../middleware/catchAsyncError");
 const Brand = require("../models/BrandModel");
 const slugify = require("../helpers/slugify");
+const ErrorHandler = require("../utils/errorHandler");
 
 // Create a new Brand
 exports.createBrand = catchAsyncError(async (req, res) => {
@@ -75,8 +76,12 @@ exports.deleteBrand = catchAsyncError(async (req, res) => {
 });
 
 // Get Brands
-exports.getAllBrands = catchAsyncError(async (req, res) => {
+exports.getAllBrands = catchAsyncError(async (req, res, next) => {
   const brands = await Brand.find();
+
+  if (!brands.length) {
+    return next(new ErrorHandler("Brand not found.", 404));
+  }
 
   res.status(201).send({
     success: true,

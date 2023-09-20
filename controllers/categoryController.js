@@ -196,13 +196,3 @@ exports.getAllDescendantsCategory = catchAsyncError(async (req, res) => {
     category: result,
   });
 });
-const promise = new Promise((resolve, reject) => {
-  resolve("data from promise");
-});
-
-async function getData() {
-  const data = await promise;
-  console.log(data);
-}
-
-getData();

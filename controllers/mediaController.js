@@ -12,13 +12,10 @@ exports.uploadImage = catchAsyncError(async (req, res, next) => {
     });
   } else {
     const uploads = images.map(({ base64, options }) => {
-      return cloudinary.uploader.upload(
-       base64,
-        {
-          folder: "digimart",
-          ...options,
-        }
-      );
+      return cloudinary.uploader.upload(base64, {
+        folder: "digimart/products",
+        ...options,
+      });
     });
 
     Promise.all(uploads)
