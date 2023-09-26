@@ -132,7 +132,7 @@ exports.getAdminCategories = catchAsyncError(async (req, res, next) => {
 });
 
 // Get All category (User)
-exports.getAllCategory = catchAsyncError(async (req, res) => {
+exports.getAllCategory = catchAsyncError(async (req, res, next) => {
   // Find parent categories
   const parent_categories = await Category.find({ parent: null })
     .select({
@@ -175,6 +175,10 @@ exports.getAllCategory = catchAsyncError(async (req, res) => {
 
   const cat_decendents = await catPromise;
 
+  if (!cat_decendents?.length) {
+    return next(new ErrorHandler("Category not found.", 404));
+  }
+
   res.status(200).send({
     success: true,
     message: "Category successfully found.",
@@ -186,9 +190,21 @@ exports.getAllCategory = catchAsyncError(async (req, res) => {
 exports.getAllDescendantsCategory = catchAsyncError(async (req, res) => {
   const { category_id } = req.query;
 
-  const result = await Category.find({ "ancestors._id": category_id })
-    .select({ _id: false, name: true, slug: true })
-    .exec();
+  const pipeline = [
+    {
+      $project: { _id: 0, "Name of user": "$name", slug: 1 },
+    },
+  ];
+
+  const result = await Category.aggregate(pipeline);
+
+  // const result = await Category.find({ "ancestors._id": category_id })
+  //   .select({
+  //     _id: false,
+  //     name: true,
+  //     slug: true,
+  //   })
+  //   .exec();
 
   res.status(200).send({
     success: true,

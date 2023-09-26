@@ -21,16 +21,21 @@ class ApiFeatures {
     const queryCopy = { ...this.queryStr };
     // Removing some fields for category
     const removeFields = ["keyword", "page", "limit"];
-
     removeFields.forEach((key) => delete queryCopy[key]);
 
-    // Filter For Price and Rating
+    // prepare for filter with price
     let queryStr = JSON.stringify(queryCopy);
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (key) => `$${key}`);
     queryStr = JSON.parse(queryStr);
 
-    const category = queryStr?.category;
-    console.log(category);
+    // prepare for filter with category
+    for (const key in queryStr) {
+      if (key === "category") {
+        let category = queryStr[key];
+        delete queryStr[key];
+        queryStr["categories.category_slug"] = category;
+      }
+    }
 
     this.query = this.query.find(queryStr);
     return this;

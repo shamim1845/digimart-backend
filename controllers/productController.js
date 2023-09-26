@@ -6,10 +6,10 @@ const { logger } = require("../utils/loger");
 
 // create a product -- (Admin)
 exports.createProduct = catchAsyncError(async (req, res, next) => {
-  const { name, description, price, images, category } = req.body;
+  const { name, description, price, images, categories } = req.body;
 
   // Validation
-  if (!name || !description || !price || !images || !category) {
+  if (!name || !description || !price || !images || !categories.length) {
     res.status(400).json({
       success: false,
       message:
@@ -127,9 +127,10 @@ exports.newArivalsCategories = catchAsyncError(async (req, res, next) => {
   }
 
   // find Categories
-  let categories = products.reduce((acc, product) => {
-    return [...acc, product.category];
+  const categories = products.reduce((acc, product) => {
+    return [...acc, product.categories[0].category_slug];
   }, []);
+
   let allCategories = [...new Set(categories)];
 
   res.status(200).json({

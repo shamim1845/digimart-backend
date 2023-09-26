@@ -27,10 +27,19 @@ const productSchema = new mongoose.Schema(
         },
       },
     ],
-    category: {
-      type: String,
-      required: [true, "please Enter Product Category."],
-    },
+    categories: [
+      {
+        category_id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Category",
+          required: true,
+        },
+        category_slug: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     brand: {
       type: String,
       default: "No Brand",

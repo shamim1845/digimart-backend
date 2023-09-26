@@ -34,20 +34,19 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return next(new ErrorHandler("Please Enter Email and Password", 400));
+    return next(new ErrorHandler("Please enter your email and password.", 400));
   }
 
   const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
-    return next(new ErrorHandler("User not found", 401));
+    return next(new ErrorHandler("User not found.", 401));
   }
 
   const isPasswordMatched = await user.comparePassword(password);
 
   if (!isPasswordMatched) {
-    res.status(401).json({ message: "Invalid login password" });
-    // return next(new ErrorHandler("Invalid  password", 401));
+    return next(new ErrorHandler("Invalid  password", 401));
   }
   sendToken(user, 200, res);
 });
@@ -58,7 +57,7 @@ exports.logout = catchAsyncError(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "Logged Out Successfull",
+    message: "Logged Out Successfull.",
   });
 });
 
@@ -68,8 +67,9 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    return next(new ErrorHandler("User not Found", 404));
+    return next(new ErrorHandler("User not Found.", 404));
   }
+
   // Get ResetPassword Token
   const resetToken = user.getResetPasswordToken();
 
@@ -82,7 +82,7 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   try {
     await sendEmail({
       email: user.email,
-      subject: `Ecommerce Password Recovery`,
+      subject: `Digimart Password Recovery.`,
       message,
     });
 
@@ -114,13 +114,13 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
 
   if (!user) {
     return next(
-      new ErrorHandler("Reset Password Token is invalid or has expired", 400)
+      new ErrorHandler("Reset Password Token is invalid or has expired.", 400)
     );
   }
 
   if (req.body.password !== req.body.confirmPassword) {
     return next(
-      new ErrorHandler("Password And Confirm Password did not match", 400)
+      new ErrorHandler("Password And Confirm Password did not match.", 400)
     );
   }
 
@@ -148,7 +148,7 @@ exports.updatePassword = catchAsyncError(async (req, res, next) => {
   if (!oldPassword || !newPassword || !confirmPassword) {
     return next(
       new ErrorHandler(
-        "oldPassword, newPassword and confirmPasswor does not be empty."
+        "oldPassword, newPassword, and confirmPassword can not be empty."
       )
     );
   }
@@ -165,6 +165,7 @@ exports.updatePassword = catchAsyncError(async (req, res, next) => {
       new ErrorHandler("password and confirm Password doesn't match.", 400)
     );
   }
+
   user.password = newPassword;
   await user.save();
 
@@ -173,7 +174,6 @@ exports.updatePassword = catchAsyncError(async (req, res, next) => {
 
 // update User Profile
 exports.updateProfile = catchAsyncError(async (req, res) => {
-  console.log(req.body);
   const newUserData = {
     name: req.body.name,
     email: req.body.email,
@@ -265,7 +265,7 @@ exports.deleteUser = catchAsyncError(async (req, res, next) => {
 });
 
 // Get Login status
-exports.loginStatus = (req, res) => {
+exports.loginStatus = catchAsyncError(async (req, res) => {
   const token = req.cookies.token;
 
   if (!token) {
@@ -273,15 +273,28 @@ exports.loginStatus = (req, res) => {
       status: false,
     });
   }
+
   // Verify Token
   const verified = jwt.verify(token, process.env.JWT_SECRET);
 
   if (verified) {
+    // check user exist or not
+    const user = await User.findById(verified?.id);
+    if (user) {
+      return res.json({
+        status: true,
+      });
+    } else {
+      // If user not exist clear cookies
+      res.clearCookie("token");
+
+      return res.json({
+        status: false,
+      });
+    }
+  } else {
     return res.json({
-      status: true,
+      status: false,
     });
   }
-  return res.json({
-    status: false,
-  });
-};
+});
