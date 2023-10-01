@@ -65,6 +65,7 @@ app.get("/metrics", async (req, res, next) => {
 const productRoute = require("./routes/productRoute");
 const userRoute = require("./routes/userRoutes");
 const orderRoute = require("./routes/orderRoute");
+const orderStatusRoute = require("./routes/orderStatusRoute");
 const paymentRoute = require("./routes/paymentRoute");
 const mediaRoute = require("./routes/mediaRoute");
 const categoryRoute = require("./routes/categoryRoute");
@@ -75,6 +76,7 @@ app.use("/api/v1", productRoute);
 app.use("/api/v1", categoryRoute);
 app.use("/api/v1", brandRoute);
 app.use("/api/v1", orderRoute);
+app.use("/api/v1", orderStatusRoute);
 app.use("/api/v1", paymentRoute);
 app.use("/api/v1", mediaRoute);
 

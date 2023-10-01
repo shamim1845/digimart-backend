@@ -1,1 +1,0 @@
-{"version":3,"file":"static/js/588.1d8cc061.chunk.js","mappings":"uJAMA,UAJc,WACZ,OAAO","sources":["components/admin/routes/users/Users.js"],"sourcesContent":["import React from \"react\";\r\n\r\nconst Users = () => {\r\n  return <div> Admin Users</div>;\r\n};\r\n\r\nexport default Users;\r\n"],"names":[],"sourceRoot":""}

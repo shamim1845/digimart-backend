@@ -1,15 +1,16 @@
 const express = require("express");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 const {
   processPayment,
   sendStripeApiKey,
   stripeWebhooks,
 } = require("../controllers/paymentController");
+
 const router = express.Router();
 const { isAuthenticatedUser } = require("../middleware/auth");
 
 router.post("/create-payment-intent", isAuthenticatedUser, processPayment);
-
 router.get("/stripeappikey", isAuthenticatedUser, sendStripeApiKey);
 
 //********  web hooks *********/

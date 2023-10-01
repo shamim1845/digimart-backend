@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunkdigimart_frontend=self.webpackChunkdigimart_frontend||[]).push([[298],{9537:function(e,n,i){i.r(n);i(2791);var r=i(184);n.default=function(){return(0,r.jsx)("div",{children:"Reviews"})}}}]);
-//# sourceMappingURL=298.179402fd.chunk.js.map

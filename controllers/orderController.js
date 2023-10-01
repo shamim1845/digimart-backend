@@ -57,72 +57,101 @@ exports.myOrders = catchAsyncError(async (req, res, next) => {
 // get all order details (for admin)
 exports.getAllOrders = catchAsyncError(async (req, res, next) => {
   const orders = await Order.find();
-
-  let totalAmount = 0;
-  orders.forEach((order) => {
-    totalAmount += order.paymentInfo.totalPrice;
-  });
-
-  if (!orders) {
+  if (!orders.length) {
     return next(new ErrorHandler("Opps! No order found.", 404));
   }
 
   res.status(200).json({
     success: true,
+    message: "Order found successFully.",
     orders,
-    totalAmount,
-    oredrCount: orders.length,
   });
 });
 
 // Update order Status (for admin)
 exports.updateOrderStatus = catchAsyncError(async (req, res, next) => {
+  const { status } = req.body;
+
+  // Find order exist or not
   const order = await Order.findById(req.params.id);
   if (!order) {
     return next(new ErrorHandler("Opps! No order found.", 404));
   }
-  if (order.orderStatus === "Delivered") {
+
+  // check order already delivered or not
+  if (order.orderStatus === "delivered" && status !== ("return" || "closed")) {
     return next(
-      new ErrorHandler("You have already delivered this product", 404)
+      new ErrorHandler("You have already delivered this product.", 400)
     );
+  } else if (order.orderStatus === "return" && status !== "closed") {
+    return next(new ErrorHandler("You have already return this product.", 400));
   }
 
-  order.orderItems.forEach(async (product) => {
-    await updateStock(product.productId, product.quantity);
-  });
+  // Update product stock
+  if (status === "processing") {
+    order.orderItems.forEach(async (product) => {
+      await updateStock(product.productId, product.quantity, "decrement");
+    });
+  } else if (status === "return") {
+    order.orderItems.forEach(async (product) => {
+      await updateStock(product.productId, product.quantity, "increment");
+    });
+  }
 
-  order.orderStatus = req.body.status;
-  if (req.body.status === "Delivered") {
+  // update order status
+  order.orderStatus = status;
+  if (req.body.status === "delivered") {
     order.deliveredAt = Date.now();
   }
 
-  await order.save({ validateBeforeSave: false });
+  await order.save({ validateBeforeSave: true });
 
   res.status(200).json({
     success: true,
+    message: "Order status update successfully.",
     order,
   });
 });
 
-const updateStock = async (productId, quantity) => {
+const updateStock = async (productId, quantity, type) => {
+  // find product
   const product = await Product.findById(productId);
-  if (product.stock > 0) {
-    product.stock -= quantity;
-  }
+  if (!product) return;
 
-  await product.save({ validateBeforeSave: false });
+  if (type === "increment") {
+    product.stock += quantity;
+    return await product.save();
+  } else if (type === "decrement") {
+    if (product?.stock > 0) {
+      product.stock -= quantity;
+      return await product.save();
+    }
+  }
 };
 
 // delete order  (for admin)
 exports.deleteOrder = catchAsyncError(async (req, res, next) => {
+  //  find order
   const order = await Order.findById(req.params.id);
   if (!order) {
     return next(new ErrorHandler("Opps! No order found.", 404));
+  }
+
+  // check order status is closed or not
+  if (order.orderStatus !== "closed") {
+    return next(
+      new ErrorHandler(
+        "Oops! Order can't be deleted until its status is closed.",
+        400
+      )
+    );
   }
 
   await order.remove();
 
   res.status(200).json({
     success: true,
+    message: "Order delete successFully.",
+    order,
   });
 });

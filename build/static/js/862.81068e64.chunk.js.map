@@ -1,1 +1,0 @@
-{"version":3,"file":"static/js/862.81068e64.chunk.js","mappings":"uJAMA,UAJe,WACb,OAAO","sources":["components/admin/routes/orders/Orders.js"],"sourcesContent":["import React from \"react\";\r\n\r\nconst Orders = () => {\r\n  return <div> Admin Orders</div>;\r\n};\r\n\r\nexport default Orders;\r\n"],"names":[],"sourceRoot":""}

@@ -13,6 +13,7 @@ const {
   updateUserRole,
   deleteUser,
   loginStatus,
+  createUser,
 } = require("../controllers/userController");
 const router = express.Router();
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
@@ -29,6 +30,12 @@ router.get("/me", isAuthenticatedUser, getUserDetails);
 router.put("/profile/update", isAuthenticatedUser, updateProfile);
 
 // For admin user
+router.post(
+  "/admin/createUser",
+  isAuthenticatedUser,
+  authorizeRoles("admin"),
+  createUser
+);
 router.get(
   "/admin/users",
   isAuthenticatedUser,

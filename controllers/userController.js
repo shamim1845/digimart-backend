@@ -29,6 +29,35 @@ exports.registerUser = catchAsyncError(async (req, res) => {
   }
 });
 
+// Create a new User (Admin)
+exports.createUser = catchAsyncError(async (req, res) => {
+  const { name, email, password, role } = req.body;
+  console.log(req.body);
+
+  const findUser = await User.findOne({ email });
+
+  if (findUser) {
+    res.status(400).json({ message: "User allready exists", success: false });
+  }
+
+  const user = await User.create({
+    name,
+    email,
+    password,
+    role,
+    avatar: {
+      public_id: "digimart/utils/a9wgtljtqefqwsg5u3be",
+      url: "https://res.cloudinary.com/dewq5eyuf/image/upload/v1694245602/digimart/utils/a9wgtljtqefqwsg5u3be.avif",
+    },
+  });
+
+  res.status(201).json({
+    success: true,
+    message: `User successfully created.`,
+    user,
+  });
+});
+
 // Login User
 exports.loginUser = catchAsyncError(async (req, res, next) => {
   const { email, password } = req.body;
@@ -202,11 +231,11 @@ exports.updateProfile = catchAsyncError(async (req, res) => {
 
 //Get all User (for admin)
 exports.getAllUser = catchAsyncError(async (req, res, next) => {
-  const user = await User.find();
+  const users = await User.find();
 
   res.status(200).json({
     success: true,
-    user,
+    users,
   });
 });
 
@@ -228,20 +257,23 @@ exports.getSingleUser = catchAsyncError(async (req, res, next) => {
 
 // update User Role (for admin)
 exports.updateUserRole = catchAsyncError(async (req, res, next) => {
-  const newUserData = {
-    role: req.body.role,
-  };
+  const { role } = req.body;
 
-  const user = await User.findByIdAndUpdate(req.params.id, newUserData, {
-    new: true,
-    runValidators: true,
-    useFindAndModify: false,
-  });
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { role },
+    {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    }
+  );
 
   await user.save();
 
   res.status(200).json({
     success: true,
+    message: "User role updated successfully.",
     user,
   });
 });
