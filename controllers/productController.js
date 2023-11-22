@@ -184,6 +184,28 @@ exports.newArivals = catchAsyncError(async (req, res, next) => {
   });
 });
 
+// Get product review by user id
+exports.getProductReview = catchAsyncError(async (req, res, next) => {
+  // find product exist or not
+  let product = await Product.findById(req.params.productId);
+
+  // check product exist or not
+  if (!product) {
+    return next(new ErrorHandler("Product not found.", 404));
+  }
+
+  // get review bu user id
+  const review = product.reviews.find(
+    (review) => review.userId.toString() === req.user._id.toString()
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Product review found successfully.",
+    review,
+  });
+});
+
 // Create New Review or Update the Review
 exports.createProductReview = catchAsyncError(async (req, res, next) => {
   const { rating, comment, images } = req.body;

@@ -43,14 +43,20 @@ exports.getSingleOrderDetails = catchAsyncError(async (req, res, next) => {
 exports.myOrders = catchAsyncError(async (req, res, next) => {
   const orders = await Order.find({ orderedUser: req.user._id });
 
-  if (!orders) {
+  if (!orders.length) {
     return next(new ErrorHandler("Currently you have not any order", 404));
   }
 
+  // sort orders
+  const sorted_orders = orders.sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
   res.status(200).json({
     success: true,
-    orders,
-    oredrCount: orders.length,
+    message: "Orders found successFully.",
+    orders: sorted_orders,
+    oredrCount: sorted_orders.length,
   });
 });
 
@@ -61,10 +67,16 @@ exports.getAllOrders = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Opps! No order found.", 404));
   }
 
+  // sort orders
+  const sorted_orders = orders.sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
   res.status(200).json({
     success: true,
-    message: "Order found successFully.",
-    orders,
+    message: "Orders found successFully.",
+    orders: sorted_orders,
+    oredrCount: sorted_orders.length,
   });
 });
 

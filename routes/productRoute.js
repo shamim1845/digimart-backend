@@ -10,6 +10,7 @@ const {
   newArivals,
   newArivalsCategories,
   deleteReview,
+  getProductReview,
 } = require("../controllers/productController");
 
 const router = express.Router();
@@ -41,6 +42,7 @@ router.get("/products/new-arrivals", newArivals);
 router.get("/products/new-arrivals-categories", newArivalsCategories);
 
 // For Authenticated User
+router.get("/product-review/:productId", isAuthenticatedUser, getProductReview);
 router.put(
   "/product-review/:productId",
   isAuthenticatedUser,
