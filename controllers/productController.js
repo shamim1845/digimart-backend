@@ -114,7 +114,7 @@ exports.getProductDetails = catchAsyncError(async (req, res, next) => {
 });
 
 // => New Arrivals utils (for recent data)
-const timeToBack = 12 * 30 * 24 * 60 * 60 * 1000;
+const timeToBack = 48 * 30 * 24 * 60 * 60 * 1000;
 
 // => New Arrivals Categories
 exports.newArivalsCategories = catchAsyncError(async (req, res, next) => {

@@ -1,5 +1,5 @@
 {
-  "name": "mern-ecommercr-project",
+  "name": "digimart-backend",
   "version": "1.0.0",
   "description": "Mern Ecommerce Website",
   "main": "backend/server.js",
