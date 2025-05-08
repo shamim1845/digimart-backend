@@ -99,7 +99,7 @@ const orderSchema = new mongoose.Schema(
       currency: {
         type: String,
         required: true,
-        enum: ["USD", "BDT"],
+        enum: ["USD", "BDT", "INR"],
       },
     },
     orderStatus: {

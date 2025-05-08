@@ -71,6 +71,7 @@ const mediaRoute = require("./routes/mediaRoute");
 const categoryRoute = require("./routes/categoryRoute");
 const brandRoute = require("./routes/brandRoute");
 const activityRoute = require("./routes/activityRoute");
+const analyticsRoute = require("./routes/analyticsRoute");
 
 app.use("/api/v1", userRoute);
 app.use("/api/v1", productRoute);
@@ -81,6 +82,7 @@ app.use("/api/v1", orderStatusRoute);
 app.use("/api/v1", paymentRoute);
 app.use("/api/v1", mediaRoute);
 app.use("/api/v1", activityRoute);
+app.use("/api/v1", analyticsRoute);
 
 // serve static file(Front-End => React App)
 app.get("*", (req, res) => {
